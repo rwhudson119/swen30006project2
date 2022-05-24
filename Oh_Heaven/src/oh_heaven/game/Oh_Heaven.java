@@ -3,11 +3,13 @@ package oh_heaven.game;
 // Oh_Heaven.java
 
 import ch.aplu.jcardgame.*;
+
 import ch.aplu.jgamegrid.*;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Properties;
 
 @SuppressWarnings("serial")
 public class Oh_Heaven extends CardGame {
@@ -26,7 +28,7 @@ public class Oh_Heaven extends CardGame {
   
   final String trumpImage[] = {"bigspade.gif","bigheart.gif","bigdiamond.gif","bigclub.gif"};
 
-  static public final int seed = 30006;
+  static public int seed = 30006;
   static final Random random = new Random(seed);
   
   // return random Enum value
@@ -68,8 +70,8 @@ public class Oh_Heaven extends CardGame {
 	 
   private final String version = "1.0";
   public final int nbPlayers = 4;
-  public final int nbStartCards = 13;
-  public final int nbRounds = 3;
+  public int nbStartCards = 13;
+  public int nbRounds = 3;
   public final int madeBidBonus = 10;
   private final int handWidth = 400;
   private final int trickWidth = 40;
@@ -101,6 +103,7 @@ public class Oh_Heaven extends CardGame {
 private int[] scores = new int[nbPlayers];
 private int[] tricks = new int[nbPlayers];
 private int[] bids = new int[nbPlayers];
+private String[] playerType = new String[nbPlayers];
 
 Font bigFont = new Font("Serif", Font.BOLD, 36);
 
@@ -164,13 +167,13 @@ private Card selected;
 private void initRound() {
 		hands = new Hand[nbPlayers];
 		for (int i = 0; i < nbPlayers; i++) {
-			   hands[i] = new Hand(deck);
+			hands[i] = new Hand(deck);
 		}
 		dealingOut(hands, nbPlayers, nbStartCards);
-		 for (int i = 0; i < nbPlayers; i++) {
-			   hands[i].sort(Hand.SortType.SUITPRIORITY, true);
-		 }
-		 // Set up human player for interaction
+		for (int i = 0; i < nbPlayers; i++) {
+			hands[i].sort(Hand.SortType.SUITPRIORITY, true);
+		}
+		// Set up human player for interaction
 		CardListener cardListener = new CardAdapter()  // Human Player plays card
 			    {
 			      public void leftDoubleClicked(Card card) { selected = card; hands[0].setTouchEnabled(false); }
@@ -286,13 +289,21 @@ private void playRound() {
 	removeActor(trumpsActor);
 }
 
-  public Oh_Heaven()
+  public Oh_Heaven(Properties properties)
   {
 	super(700, 700, 30);
     setTitle("Oh_Heaven (V" + version + ") Constructed for UofM SWEN30006 with JGameGrid (www.aplu.ch)");
     setStatusText("Initializing...");
     initScores();
     initScore();
+    seed = Integer.parseInt(properties.getProperty("seed"));
+  	nbStartCards = Integer.parseInt(properties.getProperty("nbStartCards"));
+  	nbRounds = Integer.parseInt(properties.getProperty("rounds"));
+  	enforceRules = Boolean.parseBoolean(properties.getProperty("enforceRules"));
+  	for(int i=0;i<nbPlayers;i++) {
+  		playerType[i] = properties.getProperty("players." + i);
+  	}
+  	System.out.println(seed + " " + nbStartCards + " " + nbRounds + " " + enforceRules);
     for (int i=0; i <nbRounds; i++) {
       initTricks();
       initRound();
@@ -323,11 +334,12 @@ private void playRound() {
 	// System.out.println("Working Directory = " + System.getProperty("user.dir"));
 	final Properties properties;
 	if (args == null || args.length == 0) {
-	//  properties = PropertiesLoader.loadPropertiesFile(null);
+		properties = PropertiesLoader.loadPropertiesFile(null);
 	} else {
-	//      properties = PropertiesLoader.loadPropertiesFile(args[0]);
+		properties = PropertiesLoader.loadPropertiesFile(args[0]);
 	}
-    new Oh_Heaven();
+
+    new Oh_Heaven(properties);
   }
 
 }
