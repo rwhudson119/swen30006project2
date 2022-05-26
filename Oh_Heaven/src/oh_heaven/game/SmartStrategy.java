@@ -12,6 +12,7 @@ public class SmartStrategy implements IPlayerStrategy{
 	public void leadingTurn(Player player) {
 		// TODO Auto-generated method stub
 		
+		
 	}
 
 	@Override
