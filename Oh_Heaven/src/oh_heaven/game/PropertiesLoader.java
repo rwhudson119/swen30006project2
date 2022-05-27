@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+// Adapted from project 1's PropertiesLoader. Credit to SWEN30006 teaching staff.
+
 public class PropertiesLoader {
 	public static final String ROOT_DIRECTORY = "properties/";
 	

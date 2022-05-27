@@ -28,12 +28,12 @@ public class GameManager extends CardGame {
 	final String trumpImage[] = {"bigspade.gif","bigheart.gif","bigdiamond.gif","bigclub.gif"};
 
 	static public int seed = 30006;
-	static final Random random = new Random(seed);
+	static Random random = new Random(seed);
 	private final String version = "1.0";
 	  public final int nbPlayers = 4;
 	  public int nbStartCards = 13;
 	  public int nbRounds = 3;
-	  public final int madeBidBonus = 10;
+	  public int madeBidBonus = 10;
 	  private final int handWidth = 400;
 	  private final int trickWidth = 40;
 	  private final Deck deck = new Deck(Suit.values(), Rank.values(), "cover");
@@ -86,11 +86,22 @@ public class GameManager extends CardGame {
 	public void start(Properties properties) {
 	    setTitle("Oh_Heaven (V" + version + ") Constructed for UofM SWEN30006 with JGameGrid (www.aplu.ch)");
 	    setStatusText("Initializing...");
-	    
-	    seed = Integer.parseInt(properties.getProperty("seed"));
-	  	nbStartCards = Integer.parseInt(properties.getProperty("nbStartCards"));
-	  	nbRounds = Integer.parseInt(properties.getProperty("rounds"));
-	  	enforceRules = Boolean.parseBoolean(properties.getProperty("enforceRules"));
+	    if(properties.getProperty("seed") != null) {
+	    	seed = Integer.parseInt(properties.getProperty("seed"));
+	    	random = new Random(seed);
+	    }
+	    if(properties.getProperty("madeBidBonus") != null) {
+	    	madeBidBonus = Integer.parseInt(properties.getProperty("madeBidBonus"));
+	    }
+	    if(properties.getProperty("nbStartCards") != null) {
+	    	nbStartCards = Integer.parseInt(properties.getProperty("nbStartCards"));
+	    }
+	    if(properties.getProperty("rounds") != null) {
+	    	nbRounds = Integer.parseInt(properties.getProperty("rounds"));
+	    }
+	    if(properties.getProperty("enforceRules") != null) {
+	    	enforceRules = Boolean.parseBoolean(properties.getProperty("enforceRules"));
+	    }
 	  	for(int i=0;i<nbPlayers;i++) {
 	  		playerType[i] = PlayerType.valueOf(properties.getProperty("players." + i));
 	  	}

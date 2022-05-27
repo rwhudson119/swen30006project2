@@ -1,13 +1,15 @@
 package oh_heaven.game;
 
 import java.util.ArrayList;
-
 import ch.aplu.jcardgame.Card;
 import ch.aplu.jcardgame.Hand;
 import oh_heaven.game.Oh_Heaven.Suit;
 
 public class SmartStrategy implements IPlayerStrategy{
 
+	private final int DECK_SIZE = 52;
+	private ArrayList<Card> playedCards = new ArrayList<>();
+	
 	@Override
 	public void leadingTurn(Player player) {
 		// leads with random card.
@@ -18,6 +20,8 @@ public class SmartStrategy implements IPlayerStrategy{
 	@Override
 	public void turn(Player player, Hand trick, Suit trump, Card winningCard) {
 
+		updatePlayedCards(trick);
+		
 		ArrayList<Card> playable = new ArrayList<>();
 		Suit lead = (Suit) trick.get(0).getSuit();
 		
@@ -36,11 +40,14 @@ public class SmartStrategy implements IPlayerStrategy{
 			}
 		}
 	
+		Card playCard;
 		if(winningCards.isEmpty()) { // can not win - play lowest card
-			GameManager.getInstance().selectCard( lowestCard(playable) );
+			playCard = lowestCard(playable, trump);
 		} else { // place least valuable winning card
-			GameManager.getInstance().selectCard( lowestCard(winningCards) );
+			playCard = lowestCard(winningCards, trump);
 		}
+		GameManager.getInstance().selectCard(playCard);
+		playedCards.add(playCard);
 	}
 	// Uses logic from GameManager to check if trial card beats winning card.
 	private boolean isWinning(Card trial, Card winning, Suit trump) {
@@ -55,14 +62,31 @@ public class SmartStrategy implements IPlayerStrategy{
 		return false;
 	}
 	// Finds lowest ranked card in list of cards.
-	private Card lowestCard(ArrayList<Card> possibleCards) {
-		Card lowest = null;
+	private Card lowestCard(ArrayList<Card> possibleCards, Suit trump) {
+		Card lowest = null, lowestNonTrump = null;
 		for(Card card : possibleCards) {
 			// RankId is reversed.
 			if(lowest == null || card.getRankId() > lowest.getRankId()) {
+				// Avoids playing trump suit if possible
+				if(card.getSuit() != trump) {
+					lowestNonTrump = card;
+				}
 				lowest = card;
 			}
 		}
+		if(lowestNonTrump != null) {
+			return lowestNonTrump;
+		}
 		return lowest;
+	}
+	// Stores played cards for future smarter AI decisions.
+	private void updatePlayedCards(Hand trick) {
+		for(Card card : trick.getCardList()) {
+			if(playedCards.size() == DECK_SIZE) { // new deck started.
+				playedCards.clear();
+			}
+			playedCards.add(card);
+		}
+		return;
 	}
 }
