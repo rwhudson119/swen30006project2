@@ -9,7 +9,8 @@ public class RandomStrategy implements IPlayerStrategy{
 	public void leadingTurn(Player player) {
 		GameManager.getInstance().selectCard(randomCard(player.getHand()));
 	}
-	public void turn(Player player, Suit suit) {
+	@Override
+	public void turn(Player player, Hand trick, Suit trump, Card winningCard) {
 		leadingTurn(player);
 	}
 	

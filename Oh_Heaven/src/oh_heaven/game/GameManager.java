@@ -226,7 +226,7 @@ public class GameManager extends CardGame {
 	    } else {
 			setStatusText("Player " + nextPlayerindex + " thinking...");
 	        delay(thinkingTime);
-	        nextPlayer.turn(null);
+	        nextPlayer.turn(null, null, null);
 	        while (null == selected) delay(100);
 	    }
 	    // Lead with selected card
@@ -251,7 +251,7 @@ public class GameManager extends CardGame {
 	        } else {
 		        setStatusText("Player " + nextPlayerindex + " thinking...");
 		        delay(thinkingTime);
-		        nextPlayer.turn(lead);
+		        nextPlayer.turn(trick, trumps, winningCard);
 		        while (null == selected) delay(100);
 	        }
 	        // Follow with selected card
@@ -272,7 +272,7 @@ public class GameManager extends CardGame {
 									System.exit(0);
 								}  
 					 }
-				// End Check
+				 // End Check
 				 selected.transfer(trick, true); // transfer to trick (includes graphic effect)
 				 System.out.println("winning: " + winningCard);
 				 System.out.println(" played: " + selected);
@@ -349,7 +349,7 @@ public class GameManager extends CardGame {
 	
 	private void dealingOut(int nbPlayers, int nbCardsPerPlayer) {
 		for(int i = 0; i<nbPlayers; i++) {
-			;
+			players[i].resethand();
 		}  
 		Hand pack = deck.toHand(false);
 		  // pack.setView(Oh_Heaven.this, new RowLayout(hideLocation, 0));
@@ -367,7 +367,6 @@ public class GameManager extends CardGame {
 
 	public void selectCard(Card card) {
 		this.selected = card;
-		
 	}
 	
 	public Deck getDeck() {

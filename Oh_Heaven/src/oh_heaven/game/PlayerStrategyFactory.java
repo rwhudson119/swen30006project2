@@ -5,7 +5,6 @@ public class PlayerStrategyFactory {
 	private static PlayerStrategyFactory instance = null;
 
 	private PlayerStrategyFactory() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public static PlayerStrategyFactory getInstance() {
@@ -16,16 +15,16 @@ public class PlayerStrategyFactory {
 	}
 	
 	public IPlayerStrategy createStrategy(PlayerType type) {
-		if(type == PlayerType.random){
-			return new RandomStrategy();
-		} else if(type == PlayerType.legal){
-			return new LegalStrategy();
-		} else if(type == PlayerType.smart) {
-			return new SmartStrategy();
-		} else {
-			return null;
+		switch(type) {
+			case random:
+				return new RandomStrategy();
+			case legal:
+				return new LegalStrategy();
+			case smart:
+				return new SmartStrategy();
+			default:
+				return null;
 		}
-		
 	}
 
 }

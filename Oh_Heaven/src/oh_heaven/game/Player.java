@@ -5,12 +5,13 @@ import oh_heaven.game.Oh_Heaven.Suit;
 
 public abstract class Player {
 	
-	public Hand hand = new Hand(GameManager.getInstance().getDeck());
+	public Hand hand;
 	public int bid = 0;
 	public int score = 0;
 	
-	public Player() {
-	}
+	public void setListener() {};
+	
+	public void turn(Hand trick, Suit trump, Card winningCard) {};
 	
 	public void addToHand(Card card) {
 		hand.insert(card, false);
@@ -24,10 +25,6 @@ public abstract class Player {
 		return hand;
 	}
 	
-	public void turn(Suit suit) {
-		
-	}
-	
 	public void setBid(int bid) {
 		this.bid = bid;
 	}
@@ -39,6 +36,8 @@ public abstract class Player {
 	public void resetScore() {
 		this.score = 0;
 	}
-
-	public abstract void setListener();
+	
+	public void resethand() {
+		hand = new Hand(GameManager.getInstance().getDeck());
+	}
 }

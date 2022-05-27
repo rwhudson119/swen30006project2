@@ -1,27 +1,22 @@
 package oh_heaven.game;
+import ch.aplu.jcardgame.Card;
+import ch.aplu.jcardgame.Hand;
 import oh_heaven.game.Oh_Heaven.Suit;
 
 public class NPC extends Player{
 	
-	private PlayerType type;
 	private IPlayerStrategy strategy;
 	
 	public NPC(PlayerType type) {
-		this.type = type;
 		this.strategy = PlayerStrategyFactory.getInstance().createStrategy(type);
-		
 	}
 	
-	public void turn(Suit suit) {
-		if(suit == null) {
+	public void turn(Hand trick, Suit trump, Card winningCard) {
+		if(trump == null) {
 			strategy.leadingTurn(this);
 		} else {
-			strategy.turn(this, suit);
+			strategy.turn(this, trick, trump, winningCard);
 		}
-	}
-
-	@Override
-	public void setListener() {
 	}
 
 }
