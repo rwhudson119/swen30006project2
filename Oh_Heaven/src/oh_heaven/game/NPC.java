@@ -11,11 +11,11 @@ public class NPC extends Player{
 		this.strategy = PlayerStrategyFactory.getInstance().createStrategy(type);
 	}
 	
-	public void turn(Hand trick, Suit trump, Card winningCard) {
+	public void turn(Hand trick, Suit trump, Card winningCard, GameManager gm) {
 		if(trump == null) {
-			strategy.leadingTurn(this);
+			strategy.leadingTurn(this, gm);
 		} else {
-			strategy.turn(this, trick, trump, winningCard);
+			strategy.turn(this, trick, trump, winningCard, gm);
 		}
 	}
 

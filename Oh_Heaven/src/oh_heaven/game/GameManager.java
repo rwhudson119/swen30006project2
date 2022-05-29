@@ -68,22 +68,12 @@ public class GameManager extends CardGame {
 
 	Font bigFont = new Font("Serif", Font.BOLD, 36);
 	
-	private static GameManager instance = null;
 	
-	public static GameManager getInstance() {
-		if(instance == null) {
-			instance = new GameManager();
-		}
-		return instance;
-	}
 
 	private Card selected;
-	
-	private GameManager() {
-		super(700, 700, 30);
-	}
 
-	public void start(Properties properties) {
+	public GameManager(Properties properties) {
+		super(700, 700, 30);
 	    setTitle("Oh_Heaven (V" + version + ") Constructed for UofM SWEN30006 with JGameGrid (www.aplu.ch)");
 	    setStatusText("Initializing...");
 	    if(properties.getProperty("seed") != null) {
@@ -186,7 +176,7 @@ public class GameManager extends CardGame {
 		for (int i = 0; i < nbPlayers; i++) {
 			players[i].sortHand(Hand.SortType.SUITPRIORITY);
 			if(playerType[i] == PlayerType.human) {
-				players[i].setListener();
+				players[i].setListener(this);
 			}
 		}
 		// Set up human player for interaction
@@ -230,16 +220,14 @@ public class GameManager extends CardGame {
 		trick = new Hand(deck);
 		selected = null;
 		// if (false) {
-	    if (playerType[nextPlayerindex] == PlayerType.human) {  // Select lead depending on player type
-			nextPlayer.getHand().setTouchEnabled(true);
+		nextPlayer.turn(null, null, null, this);
+	    if (playerType[nextPlayerindex] == PlayerType.human) {  
 			setStatus("Player " + nextPlayerindex + " double-click on card to lead.");
-			while (null == selected) delay(100);
 	    } else {
 			setStatusText("Player " + nextPlayerindex + " thinking...");
 	        delay(thinkingTime);
-	        nextPlayer.turn(null, null, null);
-	        while (null == selected) delay(100);
 	    }
+	    while (null == selected) delay(100);
 	    // Lead with selected card
 	        trick.setView(this, new RowLayout(trickLocation, (trick.getNumberOfCards()+2)*trickWidth));
 			trick.draw();
@@ -255,16 +243,14 @@ public class GameManager extends CardGame {
 			selected = null;
 			nextPlayer = players[nextPlayerindex];
 			// if (false) {
+			nextPlayer.turn(trick, trumps, winningCard, this);
 	        if (playerType[nextPlayerindex] == PlayerType.human) {
-	        	nextPlayer.getHand().setTouchEnabled(true);
-	    		setStatus("Player 0 double-click on card to follow.");
-	    		while (null == selected) delay(100);
+	    		setStatus("Player " + nextPlayerindex + " double-click on card to follow.");
 	        } else {
 		        setStatusText("Player " + nextPlayerindex + " thinking...");
 		        delay(thinkingTime);
-		        nextPlayer.turn(trick, trumps, winningCard);
-		        while (null == selected) delay(100);
 	        }
+	        while (null == selected) delay(100);
 	        // Follow with selected card
 		        trick.setView(this, new RowLayout(trickLocation, (trick.getNumberOfCards()+2)*trickWidth));
 				trick.draw();
@@ -360,7 +346,7 @@ public class GameManager extends CardGame {
 	
 	private void dealingOut(int nbPlayers, int nbCardsPerPlayer) {
 		for(int i = 0; i<nbPlayers; i++) {
-			players[i].resethand();
+			players[i].resethand(this);
 		}  
 		Hand pack = deck.toHand(false);
 		  // pack.setView(Oh_Heaven.this, new RowLayout(hideLocation, 0));

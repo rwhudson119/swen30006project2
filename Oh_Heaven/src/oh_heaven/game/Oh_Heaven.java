@@ -24,7 +24,7 @@ public class Oh_Heaven {
 
   public Oh_Heaven(Properties properties)
   {
-    GameManager.getInstance().start(properties);
+    new GameManager(properties);
   }
 
   public static void main(String[] args)

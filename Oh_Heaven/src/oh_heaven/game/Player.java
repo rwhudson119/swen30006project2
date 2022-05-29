@@ -9,9 +9,9 @@ public abstract class Player {
 	public int bid = 0;
 	public int score = 0;
 	
-	public void setListener() {};
+	public void setListener(GameManager gm) {};
 	
-	public void turn(Hand trick, Suit trump, Card winningCard) {};
+	public void turn(Hand trick, Suit trump, Card winningCard, GameManager gm) {};
 	
 	public void addToHand(Card card) {
 		hand.insert(card, false);
@@ -37,7 +37,7 @@ public abstract class Player {
 		this.score = 0;
 	}
 	
-	public void resethand() {
-		hand = new Hand(GameManager.getInstance().getDeck());
+	public void resethand(GameManager gm) {
+		hand = new Hand(gm.getDeck());
 	}
 }

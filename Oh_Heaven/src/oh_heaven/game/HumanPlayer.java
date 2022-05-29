@@ -8,11 +8,15 @@ import oh_heaven.game.Oh_Heaven.Suit;
 
 public class HumanPlayer extends Player{
 	
-	public void setListener() {
+	public void turn(Hand trick, Suit trump, Card winningCard, GameManager gm) {
+		this.hand.setTouchEnabled(true);
+	};
+	
+	public void setListener(GameManager gm) {
 		CardListener cardListener = new CardAdapter()  // Human Player plays card
 			    {
 			      public void leftDoubleClicked(Card card) { 
-			    	  	GameManager.getInstance().selectCard(card);
+			    	  	gm.selectCard(card);
 			    	  	
 			    	  	hand.setTouchEnabled(false); 
 			      	}

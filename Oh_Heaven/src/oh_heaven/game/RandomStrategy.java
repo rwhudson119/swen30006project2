@@ -6,12 +6,12 @@ import ch.aplu.jcardgame.Card;
 
 
 public class RandomStrategy implements IPlayerStrategy{
-	public void leadingTurn(Player player) {
-		GameManager.getInstance().selectCard(randomCard(player.getHand()));
+	public void leadingTurn(Player player, GameManager gm) {
+		gm.selectCard(randomCard(player.getHand()));
 	}
 	@Override
-	public void turn(Player player, Hand trick, Suit trump, Card winningCard) {
-		leadingTurn(player);
+	public void turn(Player player, Hand trick, Suit trump, Card winningCard, GameManager gm) {
+		leadingTurn(player, gm);
 	}
 	
     // return random Card from Hand

@@ -11,15 +11,15 @@ public class LegalStrategy implements IPlayerStrategy{
 	}
 
 	@Override
-	public void leadingTurn(Player player) {
+	public void leadingTurn(Player player, GameManager gm) {
 		// TODO Auto-generated method stub
-		GameManager.getInstance().selectCard(randomCard(player.getHand()));
+		gm.selectCard(randomCard(player.getHand()));
 	}
 
 	@Override
-	public void turn(Player player, Hand trick, Suit trump, Card winningCard) {
+	public void turn(Player player, Hand trick, Suit trump, Card winningCard, GameManager gm) {
 		Suit lead = (Suit) trick.get(0).getSuit();
-		GameManager.getInstance().selectCard(suitedCard(player.getHand(), lead, player));
+		gm.selectCard(suitedCard(player.getHand(), lead, player));
 	}
 	
 	public static Card randomCard(Hand hand){
@@ -27,7 +27,7 @@ public class LegalStrategy implements IPlayerStrategy{
         return hand.get(x);
     }
 	
-	public static Card suitedCard(Hand hand, Suit suit, Player player){
+	public Card suitedCard(Hand hand, Suit suit, Player player){
 		if(hand.getNumberOfCardsWithSuit(suit) > 0) {
 			return hand.getCardsWithSuit(suit).get(0);
 		} else {

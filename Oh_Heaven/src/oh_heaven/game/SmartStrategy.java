@@ -11,14 +11,14 @@ public class SmartStrategy implements IPlayerStrategy{
 	private ArrayList<Card> playedCards = new ArrayList<>();
 	
 	@Override
-	public void leadingTurn(Player player) {
+	public void leadingTurn(Player player, GameManager gm) {
 		// leads with random card.
 		int x = GameManager.random.nextInt(player.getHand().getNumberOfCards());
-		GameManager.getInstance().selectCard(player.getHand().get(x));
+		gm.selectCard(player.getHand().get(x));
 	}
 
 	@Override
-	public void turn(Player player, Hand trick, Suit trump, Card winningCard) {
+	public void turn(Player player, Hand trick, Suit trump, Card winningCard, GameManager gm) {
 
 		updatePlayedCards(trick);
 		
@@ -46,7 +46,7 @@ public class SmartStrategy implements IPlayerStrategy{
 		} else { // place least valuable winning card
 			playCard = lowestCard(winningCards, trump);
 		}
-		GameManager.getInstance().selectCard(playCard);
+		gm.selectCard(playCard);
 		playedCards.add(playCard);
 	}
 	// Uses logic from GameManager to check if trial card beats winning card.
