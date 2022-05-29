@@ -7,6 +7,7 @@ public abstract class Player {
 	
 	public Hand hand;
 	public int bid = 0;
+	public int trick;
 	public int score = 0;
 	
 	public void setListener(GameManager gm) {};
@@ -27,6 +28,18 @@ public abstract class Player {
 	
 	public void setBid(int bid) {
 		this.bid = bid;
+	}
+	
+	public int getTrick() {
+		return this.trick;
+	}
+
+	public void addTrick(int val) {
+		this.trick += val;
+	}
+	
+	public void setTrick(int trick) {
+		this.trick = trick;
 	}
 	
 	public void addScore(int score) {
