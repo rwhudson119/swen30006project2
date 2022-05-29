@@ -6,10 +6,6 @@ import oh_heaven.game.Oh_Heaven.Suit;
 
 public class LegalStrategy implements IPlayerStrategy{
 
-	public LegalStrategy() {
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public void leadingTurn(Player player, GameManager gm) {
 		// TODO Auto-generated method stub

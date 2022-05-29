@@ -33,10 +33,6 @@ public class UIHandler {
 			  // new Location(650, 575)
 			  new Location(575, 575)
 	  };
-
-	public UIHandler() {
-		// TODO Auto-generated constructor stub
-	}
 	
 	public void updateTrickUI(Hand trick, GameManager gm) {
 		trick.setView(gm, new RowLayout(trickLocation, (trick.getNumberOfCards()+2)*trickWidth));
