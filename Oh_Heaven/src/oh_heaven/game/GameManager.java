@@ -35,6 +35,7 @@ public class GameManager extends CardGame {
 	  private final Location textLocation = new Location(350, 450);
 	  private Location trumpsActorLocation = new Location(50, 50);
 	  private boolean enforceRules=false;
+	  private final int thinkingTime = 2000;
 
 	  public void setStatus(String string) { setStatusText(string); }
 
@@ -124,10 +125,6 @@ public class GameManager extends CardGame {
 	}
 	
 	private void initRound() {
-		/*hands = new Hand[nbPlayers];
-		for (int i = 0; i < nbPlayers; i++) {
-			hands[i] = new Hand(deck);
-		}*/
 		dealingOut(nbPlayers, nbStartCards);
 		for (int i = 0; i < nbPlayers; i++) {
 			players[i].sortHand(Hand.SortType.SUITPRIORITY);
@@ -135,13 +132,6 @@ public class GameManager extends CardGame {
 				players[i].setListener(this);
 			}
 		}
-		// Set up human player for interaction
-		/*CardListener cardListener = new CardAdapter()  // Human Player plays card
-			    {
-			      public void leftDoubleClicked(Card card) { selected = card; hands[0].setTouchEnabled(false); }
-			    };
-		hands[0].addCardListener(cardListener);*/
-		 // graphics
 		ui.initCardUI(players, nbPlayers, this);
 	//    for (int i = 1; i < nbPlayers; i++) // This code can be used to visually hide the cards in a hand (make them face down)
 	//      hands[i].setVerso(true);			// You do not need to use or change this code.
@@ -173,7 +163,7 @@ public class GameManager extends CardGame {
 			setStatus("Player " + nextPlayerindex + " double-click on card to lead.");
 	    } else {
 			setStatusText("Player " + nextPlayerindex + " thinking...");
-	        //delay(thinkingTime);
+	        delay(thinkingTime);
 	    }
 	    while (null == selected) delay(100);
 	    // Lead with selected card
@@ -195,7 +185,7 @@ public class GameManager extends CardGame {
 	    		setStatus("Player " + nextPlayerindex + " double-click on card to follow.");
 	        } else {
 		        setStatusText("Player " + nextPlayerindex + " thinking...");
-		        //delay(thinkingTime);
+		        delay(thinkingTime);
 	        }
 	        while (null == selected) delay(100);
 	        // Follow with selected card
@@ -262,9 +252,6 @@ public class GameManager extends CardGame {
 		 for (int i = 0; i<nbPlayers; i++) {
 			 players[i].setBid(bids[i]);
 		 }
-		// for (int i = 0; i < nbPlayers; i++) {
-		// 	 bids[i] = nbStartCards / 4 + 1;
-		//  }
 	 }
 	
 	private void initPlayers() {
