@@ -11,14 +11,13 @@ public class SmartStrategy implements IPlayerStrategy{
 	private ArrayList<Card> playedCards = new ArrayList<>();
 	
 	@Override
-	public void leadingTurn(Player player) {
+	public void leadingTurn(Player player, GameManager gm) {
 		// leads with random card.
-		int x = GameManager.random.nextInt(player.getHand().getNumberOfCards());
-		GameManager.getInstance().selectCard(player.getHand().get(x));
+		gm.selectCard(Utility.randomCard(player.getHand()));
 	}
 
 	@Override
-	public void turn(Player player, Hand trick, Suit trump, Card winningCard) {
+	public void turn(Player player, Hand trick, Suit trump, Card winningCard, GameManager gm) {
 
 		updatePlayedCards(trick);
 		
@@ -46,14 +45,14 @@ public class SmartStrategy implements IPlayerStrategy{
 		} else { // place least valuable winning card
 			playCard = lowestCard(winningCards, trump);
 		}
-		GameManager.getInstance().selectCard(playCard);
+		gm.selectCard(playCard);
 		playedCards.add(playCard);
 	}
 	// Uses logic from GameManager to check if trial card beats winning card.
 	private boolean isWinning(Card trial, Card winning, Suit trump) {
 		
 		boolean trumped = (winning.getSuit() == trump);
-		boolean higherRank = (trial.getRankId() < winning.getRankId()); // reversed order
+		boolean higherRank = Utility.rankGreater(trial, winning);
 		boolean sameSuit = (trial.getSuit() == winning.getSuit());
 		
 		if( (sameSuit && higherRank) || (trial.getSuit() == trump && !trumped) ) {
@@ -66,7 +65,7 @@ public class SmartStrategy implements IPlayerStrategy{
 		Card lowest = null, lowestNonTrump = null;
 		for(Card card : possibleCards) {
 			// RankId is reversed.
-			if(lowest == null || card.getRankId() > lowest.getRankId()) {
+			if(lowest == null || Utility.rankGreater(lowest, card)) {
 				// Avoids playing trump suit if possible
 				if(card.getSuit() != trump) {
 					lowestNonTrump = card;

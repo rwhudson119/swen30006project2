@@ -1,8 +1,7 @@
 package oh_heaven.game;
 
-import java.awt.Color;
+
 import java.awt.Font;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Random;
@@ -12,11 +11,8 @@ import java.util.stream.Collectors;
 import ch.aplu.jcardgame.Card;
 import ch.aplu.jcardgame.Deck;
 import ch.aplu.jcardgame.Hand;
-import ch.aplu.jcardgame.RowLayout;
-import ch.aplu.jcardgame.TargetArea;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.Location;
-import ch.aplu.jgamegrid.TextActor;
 import oh_heaven.game.Oh_Heaven.Rank;
 import oh_heaven.game.Oh_Heaven.Suit;
 import ch.aplu.jcardgame.*;
@@ -34,33 +30,15 @@ public class GameManager extends CardGame {
 	  public int nbStartCards = 13;
 	  public int nbRounds = 3;
 	  public int madeBidBonus = 10;
-	  private final int handWidth = 400;
-	  private final int trickWidth = 40;
 	  private final Deck deck = new Deck(Suit.values(), Rank.values(), "cover");
-	  private final Location[] handLocations = {
-				  new Location(350, 625),
-				  new Location(75, 350),
-				  new Location(350, 75),
-				  new Location(625, 350)
-		  };
-	  private final Location[] scoreLocations = {
-				  new Location(575, 675),
-				  new Location(25, 575),
-				  new Location(575, 25),
-				  // new Location(650, 575)
-				  new Location(575, 575)
-		  };
-	  private Actor[] scoreActors = {null, null, null, null };
-	  private final Location trickLocation = new Location(350, 350);
+
 	  private final Location textLocation = new Location(350, 450);
-	  private final int thinkingTime = 2000;
-	  private Location hideLocation = new Location(-500, - 500);
 	  private Location trumpsActorLocation = new Location(50, 50);
 	  private boolean enforceRules=false;
+	  private final int thinkingTime = 2000;
 
 	  public void setStatus(String string) { setStatusText(string); }
-	  
-	private int[] tricks = new int[nbPlayers];
+
 	private PlayerType[] playerType = new PlayerType[nbPlayers];
 	private Player[] players = new Player[nbPlayers];
 	
@@ -68,22 +46,12 @@ public class GameManager extends CardGame {
 
 	Font bigFont = new Font("Serif", Font.BOLD, 36);
 	
-	private static GameManager instance = null;
-	
-	public static GameManager getInstance() {
-		if(instance == null) {
-			instance = new GameManager();
-		}
-		return instance;
-	}
+	private UIHandler ui;
 
 	private Card selected;
-	
-	private GameManager() {
-		super(700, 700, 30);
-	}
 
-	public void start(Properties properties) {
+	public GameManager(Properties properties) {
+		super(700, 700, 30);
 	    setTitle("Oh_Heaven (V" + version + ") Constructed for UofM SWEN30006 with JGameGrid (www.aplu.ch)");
 	    setStatusText("Initializing...");
 	    if(properties.getProperty("seed") != null) {
@@ -106,16 +74,17 @@ public class GameManager extends CardGame {
 	  		playerType[i] = PlayerType.valueOf(properties.getProperty("players." + i));
 	  	}
 	  	System.out.println(seed + " " + nbStartCards + " " + nbRounds + " " + enforceRules);
+	  	this.ui = new UIHandler();
 	  	initPlayers();
 		initScores();
-	    initScore();
+		ui.initScoreUI(players, nbPlayers, this, bgColor);
 	    for (int i=0; i <nbRounds; i++) {
 	      initTricks();
 	      initRound();
 	      playRound();
 	      updateScores();
 	    };
-	    for (int i=0; i <nbPlayers; i++) updateScore(i);
+	    for (int i=0; i <nbPlayers; i++) ui.updateScoreUI(players, i, this, bgColor);
 	    int maxScore = 0;
 	    for (int i = 0; i <nbPlayers; i++) if (players[i].score > maxScore) maxScore = players[i].score;
 	    Set <Integer> winners = new HashSet<Integer>();
@@ -133,30 +102,8 @@ public class GameManager extends CardGame {
 	    setStatusText(winText);
 	    refresh();
 	}
-
-	// return random Enum value
-	  public static <T extends Enum<?>> T randomEnum(Class<T> clazz){
-	      int x = random.nextInt(clazz.getEnumConstants().length);
-	      return clazz.getEnumConstants()[x];
-	  }
-
-	  // return random Card from Hand
-	  public static Card randomCard(Hand hand){
-	      int x = random.nextInt(hand.getNumberOfCards());
-	      return hand.get(x);
-	  }
+	  
 	 
-	  // return random Card from ArrayList
-	  public static Card randomCard(ArrayList<Card> list){
-	      int x = random.nextInt(list.size());
-	      return list.get(x);
-	  }
-	  
-	  
-	  
-	  public boolean rankGreater(Card card1, Card card2) {
-		  return card1.getRankId() < card2.getRankId(); // Warning: Reverse rank order of cards (see comment on enum)
-	  }
 
 	private void initScores() {
 		for (int i = 0; i < nbPlayers; i++) {
@@ -166,45 +113,26 @@ public class GameManager extends CardGame {
 	
 	private void updateScores() {
 		 for (int i = 0; i < nbPlayers; i++) {
-			 players[i].addScore(tricks[i]);
-			 if (tricks[i] == players[i].bid) players[i].addScore(madeBidBonus);
+			 players[i].addScore(players[i].getTrick());
+			 if (players[i].getTrick() == players[i].bid) players[i].addScore(madeBidBonus);
 		 }
 	}
 	
 	private void initTricks() {
 		 for (int i = 0; i < nbPlayers; i++) {
-			 tricks[i] = 0;
+			 players[i].setTrick(0);
 		 }
 	}
 	
 	private void initRound() {
-		/*hands = new Hand[nbPlayers];
-		for (int i = 0; i < nbPlayers; i++) {
-			hands[i] = new Hand(deck);
-		}*/
 		dealingOut(nbPlayers, nbStartCards);
 		for (int i = 0; i < nbPlayers; i++) {
 			players[i].sortHand(Hand.SortType.SUITPRIORITY);
 			if(playerType[i] == PlayerType.human) {
-				players[i].setListener();
+				players[i].setListener(this);
 			}
 		}
-		// Set up human player for interaction
-		/*CardListener cardListener = new CardAdapter()  // Human Player plays card
-			    {
-			      public void leftDoubleClicked(Card card) { selected = card; hands[0].setTouchEnabled(false); }
-			    };
-		hands[0].addCardListener(cardListener);*/
-		 // graphics
-	    RowLayout[] layouts = new RowLayout[nbPlayers];
-	    for (int i = 0; i < nbPlayers; i++) {
-	      layouts[i] = new RowLayout(handLocations[i], handWidth);
-	      layouts[i].setRotationAngle(90 * i);
-	      // layouts[i].setStepDelay(10);
-	      players[i].getHand().setView(this, layouts[i]);
-	      players[i].getHand().setTargetArea(new TargetArea(trickLocation));
-	      players[i].getHand().draw();
-	    }
+		ui.initCardUI(players, nbPlayers, this);
 	//    for (int i = 1; i < nbPlayers; i++) // This code can be used to visually hide the cards in a hand (make them face down)
 	//      hands[i].setVerso(true);			// You do not need to use or change this code.
 	    // End graphics
@@ -212,7 +140,7 @@ public class GameManager extends CardGame {
 
 	private void playRound() {
 	// Select and display trump suit
-		final Suit trumps = randomEnum(Suit.class);
+		final Suit trumps = Utility.randomEnum(Suit.class);
 		final Actor trumpsActor = new Actor("sprites/"+trumpImage[trumps.ordinal()]);
 	    addActor(trumpsActor, trumpsActorLocation);
 	// End trump suit
@@ -224,25 +152,22 @@ public class GameManager extends CardGame {
 	Player nextPlayer; // randomly select player to lead for this round
 	initBids(trumps, nextPlayerindex);
 	// initScore();
-	for (int i = 0; i < nbPlayers; i++) updateScore(i);
+	for (int i = 0; i < nbPlayers; i++) ui.updateScoreUI(players, i, this, bgColor);
 	for (int i = 0; i < nbStartCards; i++) {
 		nextPlayer = players[nextPlayerindex];
 		trick = new Hand(deck);
 		selected = null;
 		// if (false) {
-	    if (playerType[nextPlayerindex] == PlayerType.human) {  // Select lead depending on player type
-			nextPlayer.getHand().setTouchEnabled(true);
+		nextPlayer.turn(null, null, null, this);
+	    if (playerType[nextPlayerindex] == PlayerType.human) {  
 			setStatus("Player " + nextPlayerindex + " double-click on card to lead.");
-			while (null == selected) delay(100);
 	    } else {
 			setStatusText("Player " + nextPlayerindex + " thinking...");
 	        delay(thinkingTime);
-	        nextPlayer.turn(null, null, null);
-	        while (null == selected) delay(100);
 	    }
+	    while (null == selected) delay(100);
 	    // Lead with selected card
-	        trick.setView(this, new RowLayout(trickLocation, (trick.getNumberOfCards()+2)*trickWidth));
-			trick.draw();
+	    	ui.updateTrickUI(trick, this);
 			selected.setVerso(false);
 			// No restrictions on the card being lead
 			lead = (Suit) selected.getSuit();
@@ -255,19 +180,16 @@ public class GameManager extends CardGame {
 			selected = null;
 			nextPlayer = players[nextPlayerindex];
 			// if (false) {
+			nextPlayer.turn(trick, trumps, winningCard, this);
 	        if (playerType[nextPlayerindex] == PlayerType.human) {
-	        	nextPlayer.getHand().setTouchEnabled(true);
-	    		setStatus("Player 0 double-click on card to follow.");
-	    		while (null == selected) delay(100);
+	    		setStatus("Player " + nextPlayerindex + " double-click on card to follow.");
 	        } else {
 		        setStatusText("Player " + nextPlayerindex + " thinking...");
 		        delay(thinkingTime);
-		        nextPlayer.turn(trick, trumps, winningCard);
-		        while (null == selected) delay(100);
 	        }
+	        while (null == selected) delay(100);
 	        // Follow with selected card
-		        trick.setView(this, new RowLayout(trickLocation, (trick.getNumberOfCards()+2)*trickWidth));
-				trick.draw();
+	        	ui.updateTrickUI(trick, this);
 				selected.setVerso(false);  // In case it is upside down
 				// Check: Following card must follow suit if possible
 					if (selected.getSuit() != lead && nextPlayer.getHand().getNumberOfCardsWithSuit(lead) > 0) {
@@ -290,7 +212,7 @@ public class GameManager extends CardGame {
 				 // System.out.println("winning: suit = " + winningCard.getSuit() + ", rank = " + (13 - winningCard.getRankId()));
 				 // System.out.println(" played: suit = " +    selected.getSuit() + ", rank = " + (13 -    selected.getRankId()));
 				 if ( // beat current winner with higher card
-					 (selected.getSuit() == winningCard.getSuit() && rankGreater(selected, winningCard)) ||
+					 (selected.getSuit() == winningCard.getSuit() && Utility.rankGreater(selected, winningCard)) ||
 					  // trumped when non-trump was winning
 					 (selected.getSuit() == trumps && winningCard.getSuit() != trumps)) {
 					 System.out.println("NEW WINNER");
@@ -300,30 +222,13 @@ public class GameManager extends CardGame {
 			// End Follow
 		}
 		delay(600);
-		trick.setView(this, new RowLayout(hideLocation, 0));
-		trick.draw();		
+		ui.hideTrickUI(trick, this);	
 		nextPlayerindex = winner;
 		setStatusText("Player " + nextPlayerindex + " wins trick.");
-		tricks[nextPlayerindex]++;
-		updateScore(nextPlayerindex);
+		players[nextPlayerindex].addTrick(1);
+		ui.updateScoreUI(players, nextPlayerindex, this, bgColor);
 	}
 	removeActor(trumpsActor);
-	}
-	
-	private void initScore() {
-		 for (int i = 0; i < nbPlayers; i++) {
-			 // scores[i] = 0;
-			 String text = "[" + String.valueOf(players[i].score) + "]" + String.valueOf(tricks[i]) + "/" + String.valueOf(players[i].bid);
-			 scoreActors[i] = new TextActor(text, Color.WHITE, bgColor, bigFont);
-			 addActor(scoreActors[i], scoreLocations[i]);
-		 }
-	  }
-
-	private void updateScore(int player) {
-		removeActor(scoreActors[player]);
-		String text = "[" + String.valueOf(players[player].score) + "]" + String.valueOf(tricks[player]) + "/" + String.valueOf(players[player].bid);
-		scoreActors[player] = new TextActor(text, Color.WHITE, bgColor, bigFont);
-		addActor(scoreActors[player], scoreLocations[player]);
 	}
 
 
@@ -347,9 +252,6 @@ public class GameManager extends CardGame {
 		 for (int i = 0; i<nbPlayers; i++) {
 			 players[i].setBid(bids[i]);
 		 }
-		// for (int i = 0; i < nbPlayers; i++) {
-		// 	 bids[i] = nbStartCards / 4 + 1;
-		//  }
 	 }
 	
 	private void initPlayers() {
@@ -360,14 +262,14 @@ public class GameManager extends CardGame {
 	
 	private void dealingOut(int nbPlayers, int nbCardsPerPlayer) {
 		for(int i = 0; i<nbPlayers; i++) {
-			players[i].resethand();
+			players[i].resethand(this);
 		}  
 		Hand pack = deck.toHand(false);
 		  // pack.setView(Oh_Heaven.this, new RowLayout(hideLocation, 0));
 		  for (int i = 0; i < nbCardsPerPlayer; i++) {
 			  for (int j=0; j < nbPlayers; j++) {
 				  if (pack.isEmpty()) return;
-				  Card dealt = randomCard(pack);
+				  Card dealt = Utility.randomCard(pack);
 			      // System.out.println("Cards = " + dealt);
 			      dealt.removeFromHand(false);
 			      players[j].addToHand(dealt);
