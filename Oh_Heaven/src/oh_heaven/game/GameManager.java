@@ -2,7 +2,6 @@ package oh_heaven.game;
 
 
 import java.awt.Font;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Random;
@@ -102,30 +101,8 @@ public class GameManager extends CardGame {
 	    setStatusText(winText);
 	    refresh();
 	}
-
-	// return random Enum value
-	  public static <T extends Enum<?>> T randomEnum(Class<T> clazz){
-	      int x = random.nextInt(clazz.getEnumConstants().length);
-	      return clazz.getEnumConstants()[x];
-	  }
-
-	  // return random Card from Hand
-	  public static Card randomCard(Hand hand){
-	      int x = random.nextInt(hand.getNumberOfCards());
-	      return hand.get(x);
-	  }
+	  
 	 
-	  // return random Card from ArrayList
-	  public static Card randomCard(ArrayList<Card> list){
-	      int x = random.nextInt(list.size());
-	      return list.get(x);
-	  }
-	  
-	  
-	  
-	  public boolean rankGreater(Card card1, Card card2) {
-		  return card1.getRankId() < card2.getRankId(); // Warning: Reverse rank order of cards (see comment on enum)
-	  }
 
 	private void initScores() {
 		for (int i = 0; i < nbPlayers; i++) {
@@ -173,7 +150,7 @@ public class GameManager extends CardGame {
 
 	private void playRound() {
 	// Select and display trump suit
-		final Suit trumps = randomEnum(Suit.class);
+		final Suit trumps = Utility.randomEnum(Suit.class);
 		final Actor trumpsActor = new Actor("sprites/"+trumpImage[trumps.ordinal()]);
 	    addActor(trumpsActor, trumpsActorLocation);
 	// End trump suit
@@ -245,7 +222,7 @@ public class GameManager extends CardGame {
 				 // System.out.println("winning: suit = " + winningCard.getSuit() + ", rank = " + (13 - winningCard.getRankId()));
 				 // System.out.println(" played: suit = " +    selected.getSuit() + ", rank = " + (13 -    selected.getRankId()));
 				 if ( // beat current winner with higher card
-					 (selected.getSuit() == winningCard.getSuit() && rankGreater(selected, winningCard)) ||
+					 (selected.getSuit() == winningCard.getSuit() && Utility.rankGreater(selected, winningCard)) ||
 					  // trumped when non-trump was winning
 					 (selected.getSuit() == trumps && winningCard.getSuit() != trumps)) {
 					 System.out.println("NEW WINNER");
@@ -305,7 +282,7 @@ public class GameManager extends CardGame {
 		  for (int i = 0; i < nbCardsPerPlayer; i++) {
 			  for (int j=0; j < nbPlayers; j++) {
 				  if (pack.isEmpty()) return;
-				  Card dealt = randomCard(pack);
+				  Card dealt = Utility.randomCard(pack);
 			      // System.out.println("Cards = " + dealt);
 			      dealt.removeFromHand(false);
 			      players[j].addToHand(dealt);
